@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://tanapat.co.th/sitemap.xml
