@@ -57,8 +57,8 @@ header.site{position:sticky;top:0;z-index:90;background:rgba(255,255,255,.96);ba
 
 /* ── Hero ───────────────────────────────── */
 .hero{position:relative;min-height:78vh;display:flex;align-items:center;color:#fff;overflow:hidden}
-.hero::before{content:"";position:absolute;inset:0;background:url('https://tanapat.co.th/wp-content/uploads/2022/07/bg8.jpeg') center/cover no-repeat}
-.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,rgba(8,22,42,.93) 0%,rgba(8,22,42,.78) 45%,rgba(8,22,42,.35) 100%)}
+.hero::before{content:"";position:absolute;inset:0;background:url('../pic/bg8.jpeg') center/cover no-repeat}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,rgba(8,22,42,.62) 0%,rgba(8,22,42,.42) 45%,rgba(8,22,42,.14) 100%)}
 .hero .wrap{position:relative;z-index:2;padding-top:70px;padding-bottom:90px}
 .kicker{display:inline-flex;align-items:center;gap:10px;font-family:var(--font-h);font-size:13px;letter-spacing:.22em;text-transform:uppercase;font-weight:500}
 .hero .kicker{color:#9fc3f5}
@@ -188,12 +188,9 @@ section.sec.tint{background:var(--paper)}
 .art-nav a.next{text-align:right}
 
 /* ── Partners ───────────────────────────── */
-.marq{overflow:hidden;position:relative;padding:6px 0}
-.marq .track{display:flex;gap:54px;align-items:center;animation:scroll 36s linear infinite;width:max-content}
-.marq:hover .track{animation-play-state:paused}
-.marq img{height:62px;width:auto;object-fit:contain;filter:grayscale(1);opacity:.65;transition:.25s}
-.marq img:hover{filter:none;opacity:1}
-@keyframes scroll{to{transform:translateX(-50%)}}
+.partner-grid{display:flex;flex-wrap:wrap;gap:28px 44px;justify-content:center;align-items:center;padding:16px 0}
+.partner-grid img{height:58px;width:auto;max-width:140px;object-fit:contain;filter:grayscale(1);opacity:.6;transition:.25s}
+.partner-grid img:hover{filter:none;opacity:1}
 
 /* ── FAQ ────────────────────────────────── */
 .faq{max-width:820px;margin:0 auto}
