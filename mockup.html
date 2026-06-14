@@ -41,31 +41,30 @@ body{
 }
 h1,h2,h3,.btn,.chip,.step-num{font-family:var(--font-heading)}
 
-/* ---------- Header ---------- */
-header{
-  background:var(--panel);
-  border-bottom:1px solid var(--line);
-  position:sticky;top:0;z-index:50;
-}
-.header-in{
-  max-width:1280px;margin:0 auto;
-  padding:.85rem 1.25rem;
-  display:flex;align-items:center;gap:.9rem;
-}
-.logo-mark{
-  width:38px;height:38px;border-radius:9px;
-  background:linear-gradient(135deg,var(--accent),#5a3fd6);
-  color:#fff;display:flex;align-items:center;justify-content:center;
-  font-family:var(--font-heading);font-weight:700;font-size:1.05rem;
-  letter-spacing:.5px;flex-shrink:0;
-}
-.logo-text h1{font-size:1.05rem;font-weight:600;letter-spacing:.2px}
-.logo-text p{font-size:.78rem;color:var(--ink-faint);margin-top:-2px}
-.header-badge{
-  margin-left:auto;font-size:.74rem;color:var(--accent-ink);
-  background:var(--accent-soft);border:1px solid #cfe2f8;
-  padding:.28rem .7rem;border-radius:99px;font-weight:600;
-  font-family:var(--font-heading);white-space:nowrap;
+/* ---------- Site Nav Header ---------- */
+.site-nav-wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+header{position:sticky;top:0;z-index:90;background:rgba(255,255,255,.96);backdrop-filter:blur(8px);border-bottom:1px solid #e8e4db}
+.site-nav-inner{display:flex;align-items:center;justify-content:space-between;height:72px}
+.site-brand{display:flex;flex-direction:column;line-height:1.1;text-decoration:none}
+.site-brand b{font-family:var(--font-heading);font-size:24px;font-weight:700;letter-spacing:.04em;color:#0d2440;display:flex;align-items:center;gap:9px}
+.site-brand>span{font-size:11px;letter-spacing:.32em;color:#5d6b7d;text-transform:uppercase;margin-top:3px}
+.cmyk-dots{display:inline-flex;gap:5px;align-items:center}
+.cmyk-dots i{width:8px;height:8px;border-radius:50%;font-style:normal}
+.cmyk-dots i:nth-child(1){background:#00b3e3}
+.cmyk-dots i:nth-child(2){background:#e6007e}
+.cmyk-dots i:nth-child(3){background:#ffd400}
+.cmyk-dots i:nth-child(4){background:#1d1d1f}
+.site-menu{display:flex;gap:6px;list-style:none}
+.site-menu a{font-family:var(--font-heading);font-size:15px;font-weight:500;padding:9px 14px;border-radius:8px;color:#33445c;transition:.18s;text-decoration:none}
+.site-menu a:hover{background:#eaf1fb;color:#1554a8}
+.site-menu a.on{background:#0d2440;color:#fff}
+.site-burger{display:none;background:none;border:1px solid #e8e4db;border-radius:9px;width:42px;height:42px;cursor:pointer;font-size:19px;color:#0d2440}
+.cmyk-bar{height:4px;background:linear-gradient(90deg,#00b3e3 0 25%,#e6007e 25% 50%,#ffd400 50% 75%,#1d1d1f 75% 100%)}
+@media(max-width:1023px){
+  .site-menu{display:none;position:absolute;top:72px;left:0;right:0;background:#fff;flex-direction:column;padding:12px 16px 18px;border-bottom:1px solid #e8e4db;box-shadow:0 18px 50px rgba(16,32,56,.16);gap:2px;z-index:80}
+  .site-menu.open{display:flex}
+  .site-menu a{display:block;padding:13px 14px;font-size:16px}
+  .site-burger{display:block}
 }
 
 /* ---------- Layout ---------- */
@@ -325,16 +324,23 @@ footer{
 <body>
 
 <header>
-  <div class="header-in">
-    <a href="index.html" style="display:flex;align-items:center;flex-shrink:0;text-decoration:none">
-      <img src="pic/logo2.png" alt="TANAPAT Printing &amp; Publication" style="height:44px;width:auto;object-fit:contain">
+  <div class="site-nav-wrap site-nav-inner">
+    <a class="site-brand" href="index.html" aria-label="หน้าแรก ธนะพัฒน์พริ้นติ้ง">
+      <b>TANAPAT <span class="cmyk-dots"><i></i><i></i><i></i><i></i></span></b>
+      <span>Printing &amp; Publication</span>
     </a>
-    <div class="logo-text">
-      <h1>Order Visualizer</h1>
-      <p>ดูตัวอย่างงานพิมพ์แบบ 3D ก่อนสั่งผลิตจริง</p>
-    </div>
-    <span class="header-badge">Interactive Design Preview</span>
+    <nav aria-label="เมนูหลัก"><ul class="site-menu" id="site-menu">
+      <li><a href="index.html">หน้าแรก</a></li>
+      <li><a href="products.html">สินค้าและบริการ</a></li>
+      <li><a href="portfolio.html">ตัวอย่างงาน</a></li>
+      <li><a href="mockup.html" class="on">Mockup 3D</a></li>
+      <li><a href="articles.html">บทความ</a></li>
+      <li><a href="about.html">เกี่ยวกับเรา</a></li>
+      <li><a href="contact.html">ติดต่อเรา</a></li>
+    </ul></nav>
+    <button class="site-burger" id="site-burger" aria-label="เปิดเมนู">☰</button>
   </div>
+  <div class="cmyk-bar"></div>
 </header>
 
 <main class="wrap">
@@ -1130,6 +1136,7 @@ buildGsmSelect();
 buildCoatSeg();
 refresh();
 syncViewUI();
+document.getElementById('site-burger').addEventListener('click',()=>document.getElementById('site-menu').classList.toggle('open'));
 </script>
 </body>
 </html>
