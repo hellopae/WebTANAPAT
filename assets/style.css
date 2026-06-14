@@ -239,10 +239,16 @@ footer a:hover{color:#fff}
 .socials a:hover{background:var(--blue)}
 .copy{border-top:1px solid rgba(255,255,255,.12);padding:20px 0;font-size:13px;color:#7e94b1;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
 
-/* ── Mockup promo ───────────────────────── */
-.mockup-promo{display:grid;grid-template-columns:1fr auto;gap:48px;align-items:center}
-.mockup-promo-badge{flex-shrink:0;width:220px}
-@media(max-width:768px){.mockup-promo{grid-template-columns:1fr}.mockup-promo-badge{display:none}}
+/* ── Mockup banner ───────────────────────── */
+.mockup-banner{display:grid;grid-template-columns:1fr auto;gap:48px;align-items:center;background:linear-gradient(135deg,#0f6bd7 0%,#5a3fd6 100%);border-radius:20px;padding:48px;color:#fff;text-decoration:none;cursor:pointer;transition:transform .25s,box-shadow .25s}
+.mockup-banner:hover{transform:translateY(-4px);box-shadow:0 16px 48px rgba(15,107,215,.35)}
+.mockup-banner-tag{font-size:.75rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;opacity:.7;margin-bottom:12px}
+.mockup-banner-h{font-size:2rem;font-weight:700;line-height:1.25;margin-bottom:12px;color:#fff}
+.mockup-banner-p{font-size:1rem;opacity:.85;line-height:1.6}
+.mockup-banner-cta{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.2);border:1.5px solid rgba(255,255,255,.45);border-radius:50px;padding:10px 24px;font-size:.98rem;font-weight:600;margin-top:24px;transition:background .2s}
+.mockup-banner:hover .mockup-banner-cta{background:rgba(255,255,255,.32)}
+.mockup-banner-right{text-align:center;flex-shrink:0;color:#fff}
+@media(max-width:768px){.mockup-banner{grid-template-columns:1fr;padding:32px 24px}.mockup-banner-right{display:none}}
 
 /* ── Lightbox ───────────────────────────── */
 .lb{position:fixed;inset:0;background:rgba(9,16,28,.92);z-index:200;display:none;align-items:center;justify-content:center;padding:30px;cursor:zoom-out}
