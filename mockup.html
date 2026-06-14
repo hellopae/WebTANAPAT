@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TANAPAT Order Visualizer — ดูตัวอย่างงานพิมพ์ 3D ก่อนสั่ง</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet" crossorigin="anonymous">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{
+  --ink:#16202c;
+  --ink-soft:#46566a;
+  --ink-faint:#8696a8;
+  --bg:#f4f5f7;
+  --panel:#ffffff;
+  --line:#e3e7ec;
+  --accent:#0f6bd7;
+  --accent-soft:#e8f1fc;
+  --accent-ink:#0a4f9e;
+  --good:#168a52;
+  --viewport-bg1:#1b2735;
+  --viewport-bg2:#0e1622;
+  --radius:12px;
+  --radius-sm:8px;
+  --font-heading:'Prompt',sans-serif;
+  --font-body:'Sarabun',sans-serif;
+  --shadow:0 1px 3px rgba(22,32,44,.06),0 8px 24px rgba(22,32,44,.07);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  font-family:var(--font-body);
+  background:var(--bg);
+  color:var(--ink);
+  font-size:15.5px;
+  line-height:1.55;
+}
+h1,h2,h3,.btn,.chip,.step-num{font-family:var(--font-heading)}
+
+/* ---------- Header ---------- */
+header{
+  background:var(--panel);
+  border-bottom:1px solid var(--line);
+  position:sticky;top:0;z-index:50;
+}
+.header-in{
+  max-width:1280px;margin:0 auto;
+  padding:.85rem 1.25rem;
+  display:flex;align-items:center;gap:.9rem;
+}
+.logo-mark{
+  width:38px;height:38px;border-radius:9px;
+  background:linear-gradient(135deg,var(--accent),#5a3fd6);
+  color:#fff;display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-heading);font-weight:700;font-size:1.05rem;
+  letter-spacing:.5px;flex-shrink:0;
+}
+.logo-text h1{font-size:1.05rem;font-weight:600;letter-spacing:.2px}
+.logo-text p{font-size:.78rem;color:var(--ink-faint);margin-top:-2px}
+.header-badge{
+  margin-left:auto;font-size:.74rem;color:var(--accent-ink);
+  background:var(--accent-soft);border:1px solid #cfe2f8;
+  padding:.28rem .7rem;border-radius:99px;font-weight:600;
+  font-family:var(--font-heading);white-space:nowrap;
+}
+
+/* ---------- Layout ---------- */
+.wrap{
+  max-width:1280px;margin:0 auto;
+  padding:1.25rem;
+  display:grid;gap:1.25rem;
+  grid-template-columns:1fr;
+}
+@media (min-width:1024px){
+  .wrap{grid-template-columns:420px 1fr;align-items:start}
+  .controls{order:1}
+  .preview-col{order:2;position:sticky;top:76px}
+}
+
+/* ---------- Panels & steps ---------- */
+.panel{
+  background:var(--panel);border:1px solid var(--line);
+  border-radius:var(--radius);box-shadow:var(--shadow);
+}
+.controls{display:flex;flex-direction:column;gap:1rem}
+.step{padding:1.1rem 1.2rem}
+.step-head{display:flex;align-items:center;gap:.65rem;margin-bottom:.85rem}
+.step-num{
+  width:26px;height:26px;border-radius:50%;flex-shrink:0;
+  background:var(--ink);color:#fff;font-size:.82rem;font-weight:600;
+  display:flex;align-items:center;justify-content:center;
+}
+.step-head h2{font-size:.98rem;font-weight:600}
+.step-head .hint{margin-left:auto;font-size:.74rem;color:var(--ink-faint)}
+
+/* ---------- Upload zone ---------- */
+.dropzone{
+  border:1.5px dashed #c3ccd6;border-radius:var(--radius-sm);
+  padding:1.6rem 1rem;text-align:center;cursor:pointer;
+  transition:border-color .18s,background .18s;
+  background:#fafbfc;
+}
+.dropzone:hover,.dropzone.dragover{border-color:var(--accent);background:var(--accent-soft)}
+.dropzone .dz-icon{font-size:1.7rem;display:block;margin-bottom:.4rem}
+.dropzone p{font-size:.88rem;color:var(--ink-soft)}
+.dropzone p strong{color:var(--accent);font-weight:600}
+.dropzone .dz-types{font-size:.74rem;color:var(--ink-faint);margin-top:.3rem}
+.file-chip{
+  display:none;margin-top:.7rem;
+  align-items:center;gap:.6rem;
+  background:#f0f7f0;border:1px solid #cfe5cf;border-radius:var(--radius-sm);
+  padding:.5rem .75rem;font-size:.85rem;
+}
+.file-chip.show{display:flex}
+.file-chip .thumb{
+  width:34px;height:34px;border-radius:6px;background-size:cover;background-position:center;
+  border:1px solid var(--line);flex-shrink:0;background-color:#fff;
+}
+.file-chip .fname{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--good);font-weight:600}
+.file-chip button{
+  border:none;background:none;color:var(--ink-faint);cursor:pointer;
+  font-size:1rem;padding:.2rem .4rem;border-radius:6px;
+}
+.file-chip button:hover{background:rgba(0,0,0,.06);color:var(--ink)}
+
+/* ---------- Product chips ---------- */
+.chip-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.55rem}
+.chip{
+  border:1.5px solid var(--line);border-radius:var(--radius-sm);
+  background:#fff;cursor:pointer;padding:.7rem .3rem .6rem;
+  display:flex;flex-direction:column;align-items:center;gap:.18rem;
+  font-size:.82rem;font-weight:500;color:var(--ink-soft);
+  transition:all .15s;
+}
+.chip .ico{font-size:1.35rem;line-height:1}
+.chip:hover{border-color:#b9c6d4}
+.chip.active{
+  border-color:var(--accent);background:var(--accent-soft);
+  color:var(--accent-ink);font-weight:600;
+  box-shadow:0 0 0 3px rgba(15,107,215,.12);
+}
+
+/* ---------- Form fields ---------- */
+.field{margin-bottom:.85rem}
+.field:last-child{margin-bottom:0}
+.field label{
+  display:block;font-size:.8rem;font-weight:600;color:var(--ink-soft);
+  margin-bottom:.35rem;font-family:var(--font-heading);
+}
+select,input[type=number]{
+  width:100%;padding:.6rem .75rem;
+  border:1.5px solid var(--line);border-radius:var(--radius-sm);
+  font-family:var(--font-body);font-size:.92rem;color:var(--ink);
+  background:#fff;appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238696a8' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right .8rem center;
+  transition:border-color .15s;
+}
+input[type=number]{background-image:none}
+select:focus,input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(15,107,215,.12)}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}
+
+/* slider rows (artwork adjust + camera angle) */
+.rng-row{display:flex;align-items:center;gap:.6rem;margin-top:.55rem}
+.rng-row label{
+  flex:0 0 96px;font-size:.78rem;font-weight:600;color:var(--ink-soft);
+  font-family:var(--font-heading);
+}
+.rng-row input[type=range]{flex:1;accent-color:var(--accent);margin:0;min-width:0}
+.rng-row .val{
+  flex:0 0 46px;text-align:right;font-size:.76rem;color:var(--ink-faint);
+  font-variant-numeric:tabular-nums;
+}
+.sub-head{display:flex;align-items:center;justify-content:space-between;gap:.5rem}
+.sub-title{font-size:.8rem;font-weight:600;font-family:var(--font-heading);color:var(--ink-soft)}
+.mini-reset{
+  border:none;background:none;color:var(--accent);font-size:.76rem;cursor:pointer;
+  font-family:var(--font-body);padding:.1rem .3rem;border-radius:5px;
+}
+.mini-reset:hover{background:var(--accent-soft)}
+.art-adjust{display:none;margin-top:.85rem;border-top:1px dashed var(--line);padding-top:.75rem}
+.art-adjust.show{display:block}
+.view-ctl{margin-bottom:1rem;border-bottom:1px dashed var(--line);padding-bottom:.95rem}
+
+/* coating segmented */
+.seg{display:grid;grid-template-columns:repeat(2,1fr);gap:.45rem}
+.seg.cols4{grid-template-columns:repeat(4,1fr)}
+.seg button{
+  border:1.5px solid var(--line);background:#fff;border-radius:var(--radius-sm);
+  padding:.5rem .4rem;font-size:.82rem;cursor:pointer;color:var(--ink-soft);
+  font-family:var(--font-body);font-weight:500;transition:all .15s;
+}
+.seg button:hover{border-color:#b9c6d4}
+.seg button.active{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-ink);font-weight:600}
+
+/* ---------- Preview column ---------- */
+.preview-col{display:flex;flex-direction:column;gap:1rem}
+.viewport-panel{overflow:hidden}
+.viewport{
+  position:relative;height:430px;
+  background:radial-gradient(ellipse at 50% 30%,var(--viewport-bg1),var(--viewport-bg2));
+  cursor:grab;touch-action:none;user-select:-moz-none;user-select:none;
+  perspective:1400px;overflow:hidden;
+}
+.viewport:active{cursor:grabbing}
+.viewport .floor{
+  position:absolute;left:50%;top:78%;width:560px;height:180px;
+  transform:translate(-50%,-50%) rotateX(75deg);
+  background:radial-gradient(ellipse at center,rgba(120,160,220,.16),transparent 65%);
+  pointer-events:none;
+}
+.stage{
+  position:absolute;left:50%;top:50%;
+  transform-style:preserve-3d;
+  will-change:transform;
+}
+.model,.model *{transform-style:preserve-3d}
+.face{
+  position:absolute;backface-visibility:hidden;
+  background-size:cover;background-position:center;
+  overflow:hidden;
+}
+.face.two-sided{backface-visibility:visible}
+.face .art{
+  position:absolute;inset:0;pointer-events:none;
+  background-size:cover;background-position:center;background-repeat:no-repeat;
+}
+.face .shade{position:absolute;inset:0;pointer-events:none}
+.face .coat{position:absolute;inset:0;pointer-events:none}
+
+/* coating visual effects */
+.coat.gloss{
+  background:linear-gradient(115deg,transparent 32%,rgba(255,255,255,.5) 46%,rgba(255,255,255,.12) 52%,transparent 64%);
+}
+.coat.matte{background:rgba(255,255,255,.07);backdrop-filter:saturate(.9)}
+.coat.spotuv{
+  background:radial-gradient(circle at 68% 30%,rgba(255,255,255,.5),transparent 34%),
+             linear-gradient(115deg,transparent 40%,rgba(255,255,255,.18) 50%,transparent 60%);
+}
+
+/* placeholder artwork */
+.ph-face{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:.3rem;color:#9aa8b8;font-size:.72rem;font-family:var(--font-heading);
+  text-align:center;padding:.5rem;
+}
+.ph-face span{font-size:1.3rem}
+
+/* viewport HUD */
+.hud-top{
+  position:absolute;top:.8rem;left:.9rem;right:.9rem;
+  display:flex;align-items:center;gap:.5rem;pointer-events:none;z-index:5;
+}
+.hud-spec{
+  font-size:.74rem;color:#c6d2e0;background:rgba(10,18,28,.55);
+  border:1px solid rgba(255,255,255,.1);backdrop-filter:blur(6px);
+  padding:.3rem .7rem;border-radius:99px;max-width:100%;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.hud-bottom{
+  position:absolute;bottom:.8rem;left:0;right:0;
+  display:flex;justify-content:center;gap:.5rem;z-index:5;
+}
+.hud-btn{
+  border:1px solid rgba(255,255,255,.18);background:rgba(10,18,28,.55);
+  color:#dbe5f0;border-radius:99px;padding:.4rem .95rem;
+  font-size:.78rem;cursor:pointer;font-family:var(--font-heading);
+  backdrop-filter:blur(6px);transition:background .15s;
+}
+.hud-btn:hover{background:rgba(30,48,70,.75)}
+.hud-btn.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.drag-tip{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  color:rgba(255,255,255,.45);font-size:.8rem;pointer-events:none;
+  font-family:var(--font-heading);letter-spacing:.3px;z-index:4;
+  transition:opacity .4s;
+}
+.drag-tip.hide{opacity:0}
+
+/* ---------- Export / save ---------- */
+.export{padding:1.1rem 1.2rem}
+.export h2{font-size:.98rem;font-weight:600;margin-bottom:.3rem;display:flex;align-items:center;gap:.5rem;font-family:var(--font-heading)}
+.export .sub{font-size:.8rem;color:var(--ink-faint);margin-bottom:.9rem}
+.export-btns{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem}
+.exp-btn{
+  border:1.5px solid var(--line);background:#fff;border-radius:var(--radius-sm);
+  padding:.8rem .4rem;cursor:pointer;font-family:var(--font-heading);
+  display:flex;flex-direction:column;align-items:center;gap:.15rem;
+  font-size:.92rem;font-weight:600;color:var(--ink);
+  transition:all .15s;
+}
+.exp-btn .ico{font-size:1.25rem}
+.exp-btn .sm{font-size:.7rem;font-weight:400;color:var(--ink-faint);font-family:var(--font-body)}
+.exp-btn:hover{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-ink)}
+.exp-btn:active{transform:scale(.97)}
+.exp-btn:disabled{opacity:.55;cursor:wait}
+.export-status{
+  font-size:.78rem;margin-top:.7rem;min-height:1.2em;color:var(--good);font-weight:600;
+}
+.export-status.err{color:#c0392b}
+
+/* ---------- Responsive tweaks ---------- */
+@media (max-width:767px){
+  .viewport{height:330px}
+  .chip-grid{grid-template-columns:repeat(3,1fr)}
+  .chip{font-size:.74rem}
+  .seg{grid-template-columns:repeat(2,1fr)}
+}
+@media (min-width:768px) and (max-width:1023px){
+  .viewport{height:480px}
+}
+@media (min-width:1440px){
+  .viewport{height:520px}
+}
+footer{
+  text-align:center;font-size:.74rem;color:var(--ink-faint);
+  padding:1rem 1rem 2rem;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-in">
+    <div class="logo-mark">TP</div>
+    <div class="logo-text">
+      <h1>TANAPAT Order Visualizer</h1>
+      <p>ดูตัวอย่างงานพิมพ์แบบ 3D ก่อนสั่งผลิตจริง</p>
+    </div>
+    <span class="header-badge">Interactive Design Preview</span>
+    <a href="index.html" style="margin-left:12px;font-size:.78rem;color:var(--ink-soft);text-decoration:none;white-space:nowrap;display:flex;align-items:center;gap:4px">← กลับเว็บหลัก</a>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ CONTROLS ============ -->
+  <div class="controls">
+
+    <!-- Step 1: Upload -->
+    <section class="panel step">
+      <div class="step-head">
+        <span class="step-num">1</span><h2>อัปโหลด Artwork</h2>
+        <span class="hint">JPEG · PNG · PDF</span>
+      </div>
+      <div class="dropzone" id="dropzone">
+        <span class="dz-icon">🎨</span>
+        <p>ลากไฟล์มาวาง หรือ <strong>คลิกเพื่อเลือกไฟล์</strong></p>
+        <p class="dz-types">รองรับ .jpg .jpeg .png .pdf (PDF จะแสดงหน้าแรก)</p>
+      </div>
+      <input type="file" id="fileInput" accept=".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf" hidden>
+      <div class="file-chip" id="fileChip">
+        <div class="thumb" id="fileThumb"></div>
+        <span class="fname" id="fileName"></span>
+        <button id="fileRemove" title="ลบไฟล์">✕</button>
+      </div>
+      <div class="art-adjust" id="artAdjust">
+        <div class="sub-head">
+          <span class="sub-title">🎯 ปรับตำแหน่ง Artwork บนชิ้นงาน</span>
+          <button class="mini-reset" id="adjReset">↺ รีเซ็ต</button>
+        </div>
+        <div class="rng-row">
+          <label for="adjX">ซ้าย – ขวา</label>
+          <input type="range" id="adjX" min="-50" max="50" value="0">
+          <span class="val" id="adjXv">0%</span>
+        </div>
+        <div class="rng-row">
+          <label for="adjY">ขึ้น – ลง</label>
+          <input type="range" id="adjY" min="-50" max="50" value="0">
+          <span class="val" id="adjYv">0%</span>
+        </div>
+        <div class="rng-row">
+          <label for="adjS">ขนาด</label>
+          <input type="range" id="adjS" min="50" max="200" value="100">
+          <span class="val" id="adjSv">100%</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Step 2: Product type -->
+    <section class="panel step">
+      <div class="step-head"><span class="step-num">2</span><h2>เลือกชนิดงาน</h2></div>
+      <div class="chip-grid" id="productGrid"></div>
+    </section>
+
+    <!-- Step 3: Specs -->
+    <section class="panel step">
+      <div class="step-head"><span class="step-num">3</span><h2>กำหนดสเปคงาน</h2></div>
+      <div class="field">
+        <label for="sizeSelect">ขนาด</label>
+        <select id="sizeSelect"></select>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="paperSelect">ชนิดกระดาษ</label>
+          <select id="paperSelect"></select>
+        </div>
+        <div class="field">
+          <label for="gsmSelect">ความหนา (แกรม)</label>
+          <select id="gsmSelect"></select>
+        </div>
+      </div>
+      <div class="field">
+        <label>การเคลือบผิว</label>
+        <div class="seg" id="coatSeg"></div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ============ PREVIEW ============ -->
+  <div class="preview-col">
+
+    <section class="panel viewport-panel">
+      <div class="viewport" id="viewport">
+        <div class="hud-top"><span class="hud-spec" id="hudSpec"></span></div>
+        <div class="floor"></div>
+        <div class="stage" id="stage"></div>
+        <div class="drag-tip" id="dragTip">⟲ ลากเพื่อหมุนดูชิ้นงาน</div>
+        <div class="hud-bottom">
+          <button class="hud-btn on" id="btnAuto">▶ หมุนอัตโนมัติ</button>
+          <button class="hud-btn" id="btnFront">มุมหน้า</button>
+          <button class="hud-btn" id="btnReset">รีเซ็ตมุมมอง</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel export">
+      <h2>💾 บันทึกรูปตัวอย่าง Mockup</h2>
+      <p class="sub">เลือกมุมที่ต้องการ แล้วบันทึกเป็นไฟล์ส่งให้ลูกค้าดูได้ทันที</p>
+      <div class="view-ctl">
+        <div class="sub-head"><span class="sub-title">📐 มุมมองที่จะบันทึก</span></div>
+        <div class="seg cols4" id="viewPresets" style="margin-top:.5rem">
+          <button data-view="hero">มุมเฉียง</button>
+          <button data-view="front">ด้านหน้า</button>
+          <button data-view="side">ด้านข้าง</button>
+          <button data-view="back">ด้านหลัง</button>
+        </div>
+        <div class="rng-row">
+          <label for="vYaw">หมุนซ้าย-ขวา</label>
+          <input type="range" id="vYaw" min="-180" max="180" value="24">
+          <span class="val" id="vYawV">24°</span>
+        </div>
+        <div class="rng-row">
+          <label for="vPitch">ก้ม - เงย</label>
+          <input type="range" id="vPitch" min="-80" max="80" value="-12">
+          <span class="val" id="vPitchV">-12°</span>
+        </div>
+      </div>
+      <div class="export-btns">
+        <button class="exp-btn" data-format="jpg">
+          <span class="ico">🖼️</span>JPG<span class="sm">ไฟล์เล็ก ส่งแชทง่าย</span>
+        </button>
+        <button class="exp-btn" data-format="png">
+          <span class="ico">🎞️</span>PNG<span class="sm">ภาพคมชัด</span>
+        </button>
+        <button class="exp-btn" data-format="pdf">
+          <span class="ico">📑</span>PDF<span class="sm">แนบอีเมล / พิมพ์</span>
+        </button>
+      </div>
+      <p class="export-status" id="exportStatus"></p>
+    </section>
+
+  </div>
+</main>
+
+<footer>TANAPAT Order Visualizer — Mockup / Interactive Design Preview · สร้างเพื่อการสาธิตระบบ</footer>
+
+<script>
+/* =====================================================
+   DATA
+===================================================== */
+const PAPERS = [
+  {id:'artgloss', label:'อาร์ตมัน',   tint:'#f7f6f2', rate:1.00},
+  {id:'artmatte', label:'อาร์ตด้าน',  tint:'#f3f2ee', rate:1.00},
+  {id:'pond',     label:'ปอนด์',      tint:'#fbfaf5', rate:0.85},
+  {id:'artcard',  label:'อาร์ตการ์ด', tint:'#f6f5f0', rate:1.25},
+  {id:'kraft',    label:'คราฟท์',     tint:'#c9a36b', rate:1.10},
+];
+
+const COATINGS = [
+  {id:'none',   label:'ไม่เคลือบ',      add:0},
+  {id:'gloss',  label:'เคลือบเงา (PVC)', add:.5},
+  {id:'matte',  label:'เคลือบด้าน (PVC)',add:.5},
+  {id:'spotuv', label:'Spot UV',         add:1.5},
+];
+
+/* sizes: cm. d = depth (cm) for box/book. fold = panel count */
+const PRODUCTS = {
+  brochure:{label:'โบรชัวร์', ico:'📰', model:'fold', base:3.5, gsm:[105,128,157,210], gsmDef:128,
+    sizes:[
+      {id:'a4f3', label:'A4 พับ 3 ตอน (กาง 29.7×21 ซม.)', w:29.7, h:21,  fold:3},
+      {id:'a4f2', label:'A4 พับครึ่ง (กาง 29.7×21 ซม.)',  w:29.7, h:21,  fold:2},
+      {id:'a3f3', label:'A3 พับ 3 ตอน (กาง 42×29.7 ซม.)', w:42,   h:29.7,fold:3},
+      {id:'a3f2', label:'A3 พับครึ่ง (กาง 42×29.7 ซม.)',  w:42,   h:29.7,fold:2},
+    ]},
+  flyer:{label:'ใบปลิว', ico:'📄', model:'sheet', base:1.2, gsm:[80,105,128,157], gsmDef:105,
+    sizes:[
+      {id:'a4', label:'A4 (21×29.7 ซม.)',   w:21,  h:29.7},
+      {id:'a5', label:'A5 (14.8×21 ซม.)',   w:14.8,h:21},
+      {id:'a6', label:'A6 (10.5×14.8 ซม.)', w:10.5,h:14.8},
+      {id:'dl', label:'DL (10×21 ซม.)',     w:10,  h:21},
+    ]},
+  book:{label:'หนังสือ', ico:'📖', model:'book', base:45, gsm:[210,260,300,350], gsmDef:260,
+    sizes:[
+      {id:'a4', label:'A4 (21×29.7 ซม.)',        w:21,  h:29.7, d:1.6},
+      {id:'b5', label:'B5 (17.6×25 ซม.)',        w:17.6,h:25,   d:1.5},
+      {id:'a5', label:'A5 (14.8×21 ซม.)',        w:14.8,h:21,   d:1.4},
+      {id:'pk', label:'Pocket (10.5×17.2 ซม.)',  w:10.5,h:17.2, d:1.2},
+    ]},
+  box:{label:'กล่อง', ico:'📦', model:'box', base:12, gsm:[260,300,350,400], gsmDef:350,
+    sizes:[
+      {id:'s',  label:'เล็ก (8×8×8 ซม.)',       w:8,  h:8,  d:8},
+      {id:'m',  label:'กลาง (15×10×6 ซม.)',     w:15, h:10, d:6},
+      {id:'l',  label:'ใหญ่ (20×15×10 ซม.)',    w:20, h:15, d:10},
+      {id:'xl', label:'พิเศษ (25×18×12 ซม.)',   w:25, h:18, d:12},
+    ]},
+  card:{label:'นามบัตร', ico:'💳', model:'card', base:2, gsm:[260,300,350,400], gsmDef:350,
+    sizes:[
+      {id:'std', label:'มาตรฐาน (9×5.4 ซม.)',  w:9,  h:5.4},
+      {id:'us',  label:'US (8.9×5.1 ซม.)',     w:8.9,h:5.1},
+      {id:'sq',  label:'จัตุรัส (6×6 ซม.)',     w:6,  h:6},
+    ]},
+  poster:{label:'โปสเตอร์', ico:'🖼️', model:'sheet', base:15, gsm:[105,128,157,210], gsmDef:157,
+    sizes:[
+      {id:'a3', label:'A3 (29.7×42 ซม.)',  w:29.7,h:42},
+      {id:'a2', label:'A2 (42×59.4 ซม.)',  w:42,  h:59.4},
+      {id:'a1', label:'A1 (59.4×84.1 ซม.)',w:59.4,h:84.1},
+      {id:'b2', label:'B2 (51.5×72.8 ซม.)',w:51.5,h:72.8},
+    ]},
+};
+
+/* =====================================================
+   STATE
+===================================================== */
+const state = {
+  product:'brochure',
+  sizeId:'a4f3',
+  paper:'artgloss',
+  gsm:128,
+  coating:'gloss',
+  artwork:null,      // dataURL
+  fileName:'',
+  adj:{x:0, y:0, s:100},   // ปรับตำแหน่ง/ขนาด artwork (%)
+};
+
+const $ = id => document.getElementById(id);
+
+/* =====================================================
+   BUILD CONTROL UI
+===================================================== */
+function buildProductGrid(){
+  const g = $('productGrid'); g.innerHTML='';
+  Object.entries(PRODUCTS).forEach(([key,p])=>{
+    const b = document.createElement('button');
+    b.className = 'chip'+(key===state.product?' active':'');
+    b.innerHTML = `<span class="ico">${p.ico}</span>${p.label}`;
+    b.onclick = ()=>{
+      state.product = key;
+      state.sizeId  = p.sizes[0].id;
+      state.gsm     = p.gsmDef;
+      buildProductGrid(); buildSizeSelect(); buildGsmSelect();
+      refresh(true);
+    };
+    g.appendChild(b);
+  });
+}
+
+function buildSizeSelect(){
+  const s = $('sizeSelect'); s.innerHTML='';
+  PRODUCTS[state.product].sizes.forEach(z=>{
+    const o = document.createElement('option');
+    o.value=z.id; o.textContent=z.label;
+    if(z.id===state.sizeId) o.selected=true;
+    s.appendChild(o);
+  });
+}
+
+function buildPaperSelect(){
+  const s = $('paperSelect'); s.innerHTML='';
+  PAPERS.forEach(p=>{
+    const o=document.createElement('option');
+    o.value=p.id; o.textContent=p.label;
+    if(p.id===state.paper) o.selected=true;
+    s.appendChild(o);
+  });
+}
+
+function buildGsmSelect(){
+  const s = $('gsmSelect'); s.innerHTML='';
+  PRODUCTS[state.product].gsm.forEach(g=>{
+    const o=document.createElement('option');
+    o.value=g; o.textContent=g+' แกรม';
+    if(g===state.gsm) o.selected=true;
+    s.appendChild(o);
+  });
+}
+
+function buildCoatSeg(){
+  const s = $('coatSeg'); s.innerHTML='';
+  COATINGS.forEach(c=>{
+    const b=document.createElement('button');
+    b.textContent=c.label;
+    b.className = c.id===state.coating?'active':'';
+    b.onclick=()=>{ state.coating=c.id; buildCoatSeg(); refresh(); };
+    s.appendChild(b);
+  });
+}
+
+$('sizeSelect').onchange  = e=>{ state.sizeId=e.target.value; refresh(true); };
+$('paperSelect').onchange = e=>{ state.paper=e.target.value; refresh(); };
+$('gsmSelect').onchange   = e=>{ state.gsm=+e.target.value; refresh(); };
+
+/* =====================================================
+   FILE UPLOAD
+===================================================== */
+const dz = $('dropzone'), fi = $('fileInput');
+dz.onclick = ()=>fi.click();
+dz.ondragover  = e=>{ e.preventDefault(); dz.classList.add('dragover'); };
+dz.ondragleave = ()=>dz.classList.remove('dragover');
+dz.ondrop = e=>{
+  e.preventDefault(); dz.classList.remove('dragover');
+  if(e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+};
+fi.onchange = ()=>{ if(fi.files[0]) handleFile(fi.files[0]); };
+$('fileRemove').onclick = ()=>{
+  state.artwork=null; state.fileName='';
+  $('fileChip').classList.remove('show');
+  $('artAdjust').classList.remove('show');
+  fi.value='';
+  resetAdj();
+};
+
+function handleFile(file){
+  const name = file.name.toLowerCase();
+  if(name.endsWith('.pdf') || file.type==='application/pdf'){
+    loadPdf(file);
+  }else if(file.type==='image/jpeg' || file.type==='image/png' || /\.(jpe?g|png)$/.test(name)){
+    const r = new FileReader();
+    r.onload = ()=>setArtwork(r.result, file.name);
+    r.readAsDataURL(file);
+  }else{
+    alert('รองรับเฉพาะไฟล์ JPEG, PNG หรือ PDF เท่านั้น');
+  }
+}
+
+async function loadPdf(file){
+  if(typeof pdfjsLib === 'undefined'){
+    alert('ไม่สามารถโหลดตัวอ่าน PDF ได้ (ต้องเชื่อมต่ออินเทอร์เน็ต) กรุณาใช้ไฟล์ JPEG/PNG แทน');
+    return;
+  }
+  try{
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    const buf = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({data:buf}).promise;
+    const page = await pdf.getPage(1);
+    const vp = page.getViewport({scale:2});
+    const cv = document.createElement('canvas');
+    cv.width=vp.width; cv.height=vp.height;
+    await page.render({canvasContext:cv.getContext('2d'), viewport:vp}).promise;
+    setArtwork(cv.toDataURL('image/jpeg',.92), file.name);
+  }catch(err){
+    console.error(err);
+    alert('อ่านไฟล์ PDF ไม่สำเร็จ กรุณาลองไฟล์อื่น');
+  }
+}
+
+function setArtwork(dataURL, name){
+  state.artwork = dataURL; state.fileName = name;
+  state.artW = 0; state.artH = 0;
+  state.adj = {x:0, y:0, s:100};
+  $('fileName').textContent = name;
+  $('fileThumb').style.backgroundImage = `url(${dataURL})`;
+  $('fileChip').classList.add('show');
+  $('artAdjust').classList.add('show');
+  syncAdjUI();
+  /* เก็บสัดส่วนภาพไว้ตรวจว่าเป็นปกหนังสือแบบกางเต็ม (หลัง-สัน-หน้า) หรือไม่ */
+  const img = new Image();
+  img.onload = ()=>{ state.artW = img.naturalWidth; state.artH = img.naturalHeight; refresh(); };
+  img.src = dataURL;
+  refresh();
+}
+
+/* ---- ปรับตำแหน่ง/ขนาด artwork ---- */
+function artTransform(){
+  const a = state.adj;
+  return `translate(${a.x}%, ${a.y}%) scale(${a.s/100})`;
+}
+function applyArtAdjust(){
+  document.querySelectorAll('.face .art').forEach(e=>e.style.transform=artTransform());
+}
+function syncAdjUI(){
+  $('adjX').value=state.adj.x; $('adjXv').textContent=state.adj.x+'%';
+  $('adjY').value=state.adj.y; $('adjYv').textContent=state.adj.y+'%';
+  $('adjS').value=state.adj.s; $('adjSv').textContent=state.adj.s+'%';
+}
+function resetAdj(){ state.adj={x:0,y:0,s:100}; syncAdjUI(); refresh(); }
+$('adjX').oninput = e=>{ state.adj.x=+e.target.value; $('adjXv').textContent=state.adj.x+'%'; applyArtAdjust(); };
+$('adjY').oninput = e=>{ state.adj.y=+e.target.value; $('adjYv').textContent=state.adj.y+'%'; applyArtAdjust(); };
+$('adjS').oninput = e=>{ state.adj.s=+e.target.value; $('adjSv').textContent=state.adj.s+'%'; applyArtAdjust(); };
+$('adjReset').onclick = ()=>{ state.adj={x:0,y:0,s:100}; syncAdjUI(); applyArtAdjust(); };
+
+/* =====================================================
+   3D MODEL BUILDER (CSS 3D)
+===================================================== */
+const stage = $('stage');
+const viewport = $('viewport');
+
+function curSize(){ return PRODUCTS[state.product].sizes.find(z=>z.id===state.sizeId); }
+function curPaper(){ return PAPERS.find(p=>p.id===state.paper); }
+
+/* px scale: fit model into viewport */
+function fitScale(w,h,d=0){
+  const vw = viewport.clientWidth, vh = viewport.clientHeight;
+  const maxW = Math.min(vw*.55, 460), maxH = Math.min(vh*.62, 350);
+  return Math.min(maxW/(w+d), maxH/(h+d));
+}
+
+/* thickness px from gsm — physical: ~gsm/10000 cm, exaggerated x3 for visibility */
+function thickPx(scale){
+  return Math.max(1.5, (state.gsm/10000)*scale*3);
+}
+
+function faceBgStyle(el, opts={}){
+  /* opts: {part:'full'|'slice', slices, idx, dim} */
+  const paper = curPaper();
+  if(state.artwork){
+    /* วาง artwork ใน layer ย่อย เพื่อให้เลื่อน/ย่อขยายได้โดยไม่กระทบหน้าตัด 3D */
+    const art = document.createElement('div');
+    art.className = 'art';
+    art.style.backgroundImage = `url(${state.artwork})`;
+    if(opts.part==='slice'){
+      art.style.backgroundSize = `${opts.slices*100}% 100%`;
+      art.style.backgroundPosition = `${opts.idx/(opts.slices-1)*100}% 50%`;
+    }else if(opts.cut){
+      art.style.backgroundSize = opts.cut.size;
+      art.style.backgroundPosition = opts.cut.pos;
+    }
+    art.style.transform = artTransform();
+    el.appendChild(art);
+  }else{
+    el.style.background = paper.tint;
+    el.classList.add('ph-face');
+    el.innerHTML = `<span>🎨</span>ตัวอย่าง Artwork<br>อัปโหลดไฟล์เพื่อแสดงงานจริง`;
+  }
+  /* shading */
+  const sh = document.createElement('div');
+  sh.className='shade';
+  const dim = opts.dim||0;
+  if(dim>0) sh.style.background = `rgba(8,14,22,${dim})`;
+  el.appendChild(sh);
+  /* coating */
+  if(state.artwork && state.coating!=='none' && !opts.noCoat){
+    const c = document.createElement('div');
+    c.className = 'coat '+state.coating;
+    el.appendChild(c);
+  }
+}
+
+/* ทิศตั้งฉาก (normal) ของแต่ละหน้า — ใช้ตัดหน้าที่หันหลังให้กล้องออกตอนบันทึกรูป
+   เพราะตัวแปลงภาพ (html-to-image) ไม่เคารพ backface-visibility */
+const FACE_NORMALS = [
+  ['rotateY(180deg)','0,0,-1'], ['rotateY(90deg)','1,0,0'], ['rotateY(-90deg)','-1,0,0'],
+  ['rotateX(90deg)','0,1,0'],   ['rotateX(-90deg)','0,-1,0'],
+];
+
+function mkFace(w,h,transform,opts={}){
+  const f = document.createElement('div');
+  f.className='face'+(opts.twoSided?' two-sided':'');
+  f.dataset.n = '0,0,1';
+  for(const [k,v] of FACE_NORMALS){ if(transform.includes(k)){ f.dataset.n = v; break; } }
+  f.style.width=w+'px'; f.style.height=h+'px';
+  f.style.left=(-w/2)+'px'; f.style.top=(-h/2)+'px';
+  f.style.transform=transform;
+  if(opts.solid){
+    f.style.background=opts.solid;
+  }else{
+    faceBgStyle(f,opts);
+  }
+  if(opts.solid && opts.dim){
+    const sh=document.createElement('div'); sh.className='shade';
+    sh.style.background=`rgba(8,14,22,${opts.dim})`; f.appendChild(sh);
+  }
+  return f;
+}
+
+function paperEdgeColor(){
+  const p = curPaper();
+  return p.id==='kraft' ? '#b08c55' : '#e8e6df';
+}
+
+/* ---- sheet (flyer / poster) ---- */
+function buildSheet(){
+  const z = curSize(), s = fitScale(z.w,z.h);
+  const w=z.w*s, h=z.h*s, t=thickPx(s);
+  const m = document.createElement('div'); m.className='model';
+  m.appendChild(mkFace(w,h,`translateZ(${t/2}px)`));
+  const back = mkFace(w,h,`rotateY(180deg) translateZ(${t/2}px)`,{dim:.12});
+  m.appendChild(back);
+  return m;
+}
+
+/* ---- card (business card, thicker look) ---- */
+function buildCard(){
+  const z = curSize(), s = fitScale(z.w,z.h);
+  const w=z.w*s, h=z.h*s, t=Math.max(2.5,thickPx(s)*1.5);
+  const m=document.createElement('div'); m.className='model';
+  m.appendChild(mkFace(w,h,`translateZ(${t/2}px)`));
+  m.appendChild(mkFace(w,h,`rotateY(180deg) translateZ(${t/2}px)`,{dim:.12}));
+  const ec=paperEdgeColor();
+  m.appendChild(mkFace(t,h,`rotateY(90deg) translateZ(${w/2}px)`,{solid:ec,dim:.18}));
+  m.appendChild(mkFace(t,h,`rotateY(-90deg) translateZ(${w/2}px)`,{solid:ec,dim:.18}));
+  m.appendChild(mkFace(w,t,`rotateX(90deg) translateZ(${h/2}px)`,{solid:ec,dim:.08}));
+  m.appendChild(mkFace(w,t,`rotateX(-90deg) translateZ(${h/2}px)`,{solid:ec,dim:.25}));
+  return m;
+}
+
+/* ---- folded brochure (2 or 3 panels) ---- */
+function buildFold(){
+  const z = curSize(), n = z.fold||3;
+  const s = fitScale(z.w*.82, z.h);
+  const panelW = z.w*s/n, h=z.h*s;
+  const m=document.createElement('div'); m.className='model';
+  const angle = n===3 ? 32 : 38;
+
+  /* container of panels, centered on middle panel */
+  for(let i=0;i<n;i++){
+    const p=document.createElement('div');
+    p.className='face two-sided';
+    p.style.width=panelW+'px'; p.style.height=h+'px';
+    p.style.top=(-h/2)+'px';
+    if(n===3){
+      if(i===0){ /* left panel folds back */
+        p.style.left=(-panelW*1.5)+'px';
+        p.style.transformOrigin='right center';
+        p.style.transform=`rotateY(${angle}deg)`;
+      }else if(i===1){
+        p.style.left=(-panelW/2)+'px';
+      }else{ /* right folds forward */
+        p.style.left=(panelW*.5)+'px';
+        p.style.transformOrigin='left center';
+        p.style.transform=`rotateY(${-angle}deg)`;
+      }
+    }else{
+      if(i===0){
+        p.style.left=(-panelW)+'px';
+        p.style.transformOrigin='right center';
+        p.style.transform=`rotateY(${angle}deg)`;
+      }else{
+        p.style.left='0px';
+        p.style.transformOrigin='left center';
+        p.style.transform=`rotateY(${-angle}deg)`;
+      }
+    }
+    faceBgStyle(p,{part:'slice',slices:n,idx:i,dim:i===1||n===2&&i===0?0:.07});
+    /* placeholder text only on middle/first panel to avoid clutter */
+    if(!state.artwork && i!==Math.floor(n/2)) p.innerHTML='';
+    m.appendChild(p);
+  }
+  m.style.transform='rotateX(-4deg)';
+  return m;
+}
+
+/* ---- book ---- */
+function buildBook(){
+  const z=curSize();
+  /* ตรวจว่า artwork เป็นปกแบบกางเต็ม (ปกหลัง + สัน + ปกหน้า) หรือไม่
+     จากสัดส่วนภาพ: ความกว้างสัน = (กว้างภาพ/สูงภาพ)*สูงเล่ม - 2*กว้างเล่ม */
+  let spineCm=0;
+  if(state.artwork && state.artW && state.artH){
+    const sp = (state.artW/state.artH)*z.h - 2*z.w;
+    if(sp > 0.2) spineCm = Math.min(Math.max(sp,.3),6);
+  }
+  const dCm = spineCm || z.d;
+  const s=fitScale(z.w,z.h,dCm);
+  const w=z.w*s, h=z.h*s, d=Math.max(10,dCm*s*(spineCm?1:2.2));
+  const m=document.createElement('div'); m.className='model';
+  if(spineCm){
+    /* แบ่งภาพปกกางเต็ม: ซ้าย=ปกหลัง กลาง=สัน ขวา=ปกหน้า */
+    const total=2*z.w+spineCm;
+    const coverSize=(total/z.w*100)+'% 100%';
+    const spineSize=(total/spineCm*100)+'% 100%';
+    m.appendChild(mkFace(w,h,`translateZ(${d/2}px)`,{cut:{size:coverSize,pos:'100% 50%'}}));
+    m.appendChild(mkFace(w,h,`rotateY(180deg) translateZ(${d/2}px)`,{cut:{size:coverSize,pos:'0% 50%'},dim:.08}));
+    m.appendChild(mkFace(d,h,`rotateY(-90deg) translateZ(${w/2}px)`,{cut:{size:spineSize,pos:'50% 50%'},dim:.1}));
+  }else{
+    /* artwork หน้าเดียว: ใช้เป็นปกหน้า */
+    m.appendChild(mkFace(w,h,`translateZ(${d/2}px)`));
+    m.appendChild(mkFace(w,h,`rotateY(180deg) translateZ(${d/2}px)`,{dim:.3}));
+    m.appendChild(mkFace(d,h,`rotateY(-90deg) translateZ(${w/2}px)`,{dim:.22}));
+  }
+  /* pages: right/top/bottom */
+  const pages='repeating-linear-gradient(90deg,#fdfdfa 0 2px,#e4e2da 2px 3px)';
+  const pagesV='repeating-linear-gradient(0deg,#fdfdfa 0 2px,#e4e2da 2px 3px)';
+  const pr=mkFace(d,h,`rotateY(90deg) translateZ(${w/2}px)`,{solid:'#f4f2ea'});
+  pr.style.background=pages; m.appendChild(pr);
+  const pt=mkFace(w,d,`rotateX(90deg) translateZ(${h/2}px)`,{solid:'#f4f2ea'});
+  pt.style.background=pagesV; m.appendChild(pt);
+  const pb=mkFace(w,d,`rotateX(-90deg) translateZ(${h/2}px)`,{solid:'#efede4',dim:.2});
+  m.appendChild(pb);
+  return m;
+}
+
+/* ---- box ---- */
+function buildBox(){
+  const z=curSize(), s=fitScale(z.w,z.h,z.d);
+  const w=z.w*s, h=z.h*s, d=z.d*s;
+  const m=document.createElement('div'); m.className='model';
+  const tint=curPaper().tint;
+  /* front + back: artwork */
+  m.appendChild(mkFace(w,h,`translateZ(${d/2}px)`));
+  m.appendChild(mkFace(w,h,`rotateY(180deg) translateZ(${d/2}px)`,{dim:.25}));
+  /* sides */
+  m.appendChild(mkFace(d,h,`rotateY(90deg) translateZ(${w/2}px)`,{solid:tint,dim:.22}));
+  m.appendChild(mkFace(d,h,`rotateY(-90deg) translateZ(${w/2}px)`,{solid:tint,dim:.3}));
+  /* top: artwork (เหมือนฝากล่อง), bottom solid */
+  const top=mkFace(w,d,`rotateX(90deg) translateZ(${h/2}px)`,{dim:.06});
+  m.appendChild(top);
+  m.appendChild(mkFace(w,d,`rotateX(-90deg) translateZ(${h/2}px)`,{solid:tint,dim:.4}));
+  return m;
+}
+
+const BUILDERS = {sheet:buildSheet, card:buildCard, fold:buildFold, book:buildBook, box:buildBox};
+
+function rebuildModel(){
+  stage.innerHTML='';
+  const model = BUILDERS[PRODUCTS[state.product].model]();
+  stage.appendChild(model);
+  applyStageTransform();
+}
+
+/* =====================================================
+   ROTATION / INTERACTION
+===================================================== */
+let rotX=-12, rotY=24, autoRotate=true, dragging=false, lastX=0, lastY=0;
+let tipHidden=false;
+
+function applyStageTransform(){
+  stage.style.transform=`translate(-50%,-50%) rotateX(${rotX}deg) rotateY(${rotY}deg)`;
+}
+
+viewport.addEventListener('pointerdown',e=>{
+  if(e.target.closest('.hud-btn'))return;
+  dragging=true; lastX=e.clientX; lastY=e.clientY;
+  viewport.setPointerCapture(e.pointerId);
+  hideTip();
+});
+viewport.addEventListener('pointermove',e=>{
+  if(!dragging)return;
+  rotY += (e.clientX-lastX)*.45;
+  rotX -= (e.clientY-lastY)*.35;
+  rotX = Math.max(-80,Math.min(80,rotX));
+  lastX=e.clientX; lastY=e.clientY;
+  applyStageTransform();
+  syncViewUI();
+});
+['pointerup','pointercancel'].forEach(ev=>
+  viewport.addEventListener(ev,()=>dragging=false));
+
+function hideTip(){
+  if(!tipHidden){ tipHidden=true; $('dragTip').classList.add('hide'); }
+}
+setTimeout(hideTip, 5000);
+
+(function loop(){
+  if(autoRotate && !dragging){ rotY+=.25; applyStageTransform(); syncViewUI(); }
+  requestAnimationFrame(loop);
+})();
+
+function setAutoUI(){
+  const b=$('btnAuto');
+  b.classList.toggle('on',autoRotate);
+  b.textContent = autoRotate?'▶ หมุนอัตโนมัติ':'⏸ หยุดหมุน';
+}
+function stopAuto(){ if(autoRotate){ autoRotate=false; setAutoUI(); } }
+
+$('btnAuto').onclick=()=>{ autoRotate=!autoRotate; setAutoUI(); };
+$('btnFront').onclick=()=>{ stopAuto(); rotX=-6; rotY=0; applyStageTransform(); syncViewUI(); };
+$('btnReset').onclick=()=>{ rotX=-12; rotY=24; applyStageTransform(); syncViewUI(); };
+
+/* ---- ตัวปรับมุมมองสำหรับบันทึกรูป ---- */
+function normYaw(){ return Math.round(((rotY%360)+540)%360-180); }
+function syncViewUI(){
+  $('vYaw').value=normYaw(); $('vYawV').textContent=normYaw()+'°';
+  $('vPitch').value=Math.round(rotX); $('vPitchV').textContent=Math.round(rotX)+'°';
+}
+$('vYaw').oninput = e=>{
+  stopAuto(); rotY=+e.target.value;
+  $('vYawV').textContent=normYaw()+'°'; applyStageTransform();
+};
+$('vPitch').oninput = e=>{
+  stopAuto(); rotX=+e.target.value;
+  $('vPitchV').textContent=Math.round(rotX)+'°'; applyStageTransform();
+};
+const VIEW_PRESETS = {
+  hero:{x:-12,y:24}, front:{x:-4,y:0}, side:{x:-8,y:76}, back:{x:-8,y:180},
+};
+document.querySelectorAll('#viewPresets button').forEach(b=>{
+  b.onclick=()=>{
+    stopAuto();
+    const v=VIEW_PRESETS[b.dataset.view];
+    rotX=v.x; rotY=v.y;
+    applyStageTransform(); syncViewUI();
+  };
+});
+
+window.addEventListener('resize',()=>rebuildModel());
+
+/* =====================================================
+   HUD SPEC
+===================================================== */
+function updateHud(){
+  const p=PRODUCTS[state.product], z=curSize(), paper=curPaper();
+  const coat=COATINGS.find(c=>c.id===state.coating);
+  $('hudSpec').textContent =
+    `${p.label} · ${z.label.split(' (')[0]} · ${paper.label} ${state.gsm}g · ${coat.label}`;
+}
+
+function refresh(){
+  rebuildModel();
+  updateHud();
+}
+
+/* =====================================================
+   EXPORT MOCKUP (JPG / PNG / PDF)
+===================================================== */
+const exportStatus = $('exportStatus');
+
+function exportFileName(ext){
+  const d = new Date();
+  const stamp = d.getFullYear() + String(d.getMonth()+1).padStart(2,'0') + String(d.getDate()).padStart(2,'0');
+  return `TANAPAT-mockup-${state.product}-${stamp}.${ext}`;
+}
+
+/* หน้าหันเข้าหากล้องหรือไม่ — หมุน normal ด้วยมุมกล้องปัจจุบัน (rotateX(rotX) rotateY(rotY)) */
+function faceIsVisible(nStr){
+  const [nx,ny,nz] = nStr.split(',').map(Number);
+  const ry = rotY*Math.PI/180, rx = rotX*Math.PI/180;
+  const x1 =  nx*Math.cos(ry) + nz*Math.sin(ry);
+  const z1 = -nx*Math.sin(ry) + nz*Math.cos(ry);
+  const z2 =  ny*Math.sin(rx) + z1*Math.cos(rx);
+  return z2 > 0.02;
+}
+
+async function captureViewport(){
+  /* snapshot the 3D viewport, excluding control buttons / drag tip
+     และตัดหน้า 3D ที่หันหลังให้กล้องออก (html-to-image วาดทับโดยไม่สน backface) */
+  const skip = el => {
+    if(!el.classList) return true;
+    if(el.classList.contains('hud-bottom') || el.classList.contains('drag-tip')) return false;
+    if(el.classList.contains('face') && !el.classList.contains('two-sided')
+       && el.dataset.n && !faceIsVisible(el.dataset.n)) return false;
+    return true;
+  };
+  const wasAuto = autoRotate; autoRotate = false;
+  try{
+    return await htmlToImage.toCanvas(viewport, {
+      filter: skip,
+      pixelRatio: 2,
+      backgroundColor: '#101a26',
+    });
+  }finally{
+    autoRotate = wasAuto;
+  }
+}
+
+function downloadDataURL(dataURL, filename){
+  const a = document.createElement('a');
+  a.href = dataURL; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+}
+
+async function exportMockup(format, btn){
+  if(typeof htmlToImage === 'undefined' || (format==='pdf' && typeof jspdf === 'undefined')){
+    exportStatus.textContent = 'ไม่สามารถโหลดตัวบันทึกภาพได้ (ต้องเชื่อมต่ออินเทอร์เน็ต)';
+    exportStatus.classList.add('err');
+    return;
+  }
+  const all = document.querySelectorAll('.exp-btn');
+  all.forEach(b=>b.disabled=true);
+  exportStatus.classList.remove('err');
+  exportStatus.textContent = 'กำลังสร้างไฟล์…';
+  try{
+    const canvas = await captureViewport();
+    if(format==='png'){
+      downloadDataURL(canvas.toDataURL('image/png'), exportFileName('png'));
+    }else if(format==='jpg'){
+      downloadDataURL(canvas.toDataURL('image/jpeg', .92), exportFileName('jpg'));
+    }else{
+      const img = canvas.toDataURL('image/jpeg', .95);
+      const landscape = canvas.width >= canvas.height;
+      const pdf = new jspdf.jsPDF({orientation: landscape?'l':'p', unit:'mm', format:'a4'});
+      const pw = pdf.internal.pageSize.getWidth(), ph = pdf.internal.pageSize.getHeight();
+      const margin = 12;
+      const ratio = Math.min((pw-margin*2)/canvas.width, (ph-margin*2-10)/canvas.height);
+      const iw = canvas.width*ratio, ih = canvas.height*ratio;
+      pdf.setFillColor(16,26,38);
+      pdf.addImage(img, 'JPEG', (pw-iw)/2, (ph-10-ih)/2, iw, ih);
+      pdf.setFontSize(9); pdf.setTextColor(130,140,155);
+      pdf.text('TANAPAT Order Visualizer - Mockup Preview', pw/2, ph-8, {align:'center'});
+      pdf.save(exportFileName('pdf'));
+    }
+    exportStatus.textContent = '✓ บันทึกไฟล์เรียบร้อย พร้อมส่งให้ลูกค้า';
+  }catch(err){
+    console.error(err);
+    exportStatus.textContent = 'บันทึกไม่สำเร็จ กรุณาลองใหม่อีกครั้ง';
+    exportStatus.classList.add('err');
+  }finally{
+    all.forEach(b=>b.disabled=false);
+    setTimeout(()=>{ exportStatus.textContent=''; }, 4000);
+  }
+}
+
+document.querySelectorAll('.exp-btn').forEach(b=>
+  b.onclick = ()=>exportMockup(b.dataset.format, b));
+
+/* =====================================================
+   INIT
+===================================================== */
+buildProductGrid();
+buildSizeSelect();
+buildPaperSelect();
+buildGsmSelect();
+buildCoatSeg();
+refresh();
+syncViewUI();
+</script>
+</body>
+</html>

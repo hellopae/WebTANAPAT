@@ -239,6 +239,11 @@ footer a:hover{color:#fff}
 .socials a:hover{background:var(--blue)}
 .copy{border-top:1px solid rgba(255,255,255,.12);padding:20px 0;font-size:13px;color:#7e94b1;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
 
+/* ── Mockup promo ───────────────────────── */
+.mockup-promo{display:grid;grid-template-columns:1fr auto;gap:48px;align-items:center}
+.mockup-promo-badge{flex-shrink:0;width:220px}
+@media(max-width:768px){.mockup-promo{grid-template-columns:1fr}.mockup-promo-badge{display:none}}
+
 /* ── Lightbox ───────────────────────────── */
 .lb{position:fixed;inset:0;background:rgba(9,16,28,.92);z-index:200;display:none;align-items:center;justify-content:center;padding:30px;cursor:zoom-out}
 .lb.show{display:flex}
