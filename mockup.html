@@ -13,13 +13,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TANAPAT Order Visualizer — ดูตัวอย่างงานพิมพ์ 3D ก่อนสั่ง</title>
-<meta name="description" content="เครื่องมือดูตัวอย่างงานพิมพ์แบบ 3D ก่อนสั่งพิมพ์ อัปโหลดไฟล์ Artwork แล้วดู Mockup กล่อง ถุงกระดาษ หนังสือ โบรชัวร์ นามบัตร ได้ทันที ฟรี โดยโรงพิมพ์ธนะพัฒน์พริ้นติ้ง ราษฎร์บูรณะ กรุงเทพฯ">
+<meta name="description" content="เครื่องมือดูตัวอย่างงานพิมพ์แบบ 3D ก่อนสั่งพิมพ์ อัปโหลดไฟล์ Artwork แล้วดู Mockup โบรชัวร์ ใบปลิว หนังสือ นามบัตร โปสเตอร์ ได้ทันที ฟรี โดยโรงพิมพ์ธนะพัฒน์พริ้นติ้ง ราษฎร์บูรณะ กรุงเทพฯ">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://tanapat.co.th/mockup.html">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="บริษัท ธนะพัฒน์พริ้นติ้ง แอนด์ พับลิเคชั่น จำกัด">
 <meta property="og:title" content="TANAPAT Order Visualizer — ดูตัวอย่างงานพิมพ์ 3D ก่อนสั่ง">
-<meta property="og:description" content="เครื่องมือดูตัวอย่างงานพิมพ์แบบ 3D ก่อนสั่งพิมพ์ อัปโหลดไฟล์ Artwork แล้วดู Mockup กล่อง ถุงกระดาษ หนังสือ โบรชัวร์ นามบัตร ได้ทันที ฟรี โดยโรงพิมพ์ธนะพัฒน์พริ้นติ้ง ราษฎร์บูรณะ กรุงเทพฯ">
+<meta property="og:description" content="เครื่องมือดูตัวอย่างงานพิมพ์แบบ 3D ก่อนสั่งพิมพ์ อัปโหลดไฟล์ Artwork แล้วดู Mockup โบรชัวร์ ใบปลิว หนังสือ นามบัตร โปสเตอร์ ได้ทันที ฟรี โดยโรงพิมพ์ธนะพัฒน์พริ้นติ้ง ราษฎร์บูรณะ กรุงเทพฯ">
 <meta property="og:url" content="https://tanapat.co.th/mockup.html">
 <meta property="og:image" content="https://tanapat.co.th/pic/bg8.webp">
 <meta property="og:locale" content="th_TH">
@@ -373,7 +373,7 @@ footer{
 
   <div class="page-intro">
     <h1>ดูตัวอย่างงานพิมพ์ 3D ก่อนสั่งพิมพ์ (Mockup ออนไลน์ ฟรี)</h1>
-    <p>อัปโหลดไฟล์ Artwork ของคุณ แล้วดูภาพจำลองงานจริง — กล่องบรรจุภัณฑ์ ถุงกระดาษ หนังสือ โบรชัวร์ นามบัตร — ก่อนตัดสินใจสั่งพิมพ์กับ <a href="index.html">โรงพิมพ์ธนะพัฒน์พริ้นติ้ง</a> ราษฎร์บูรณะ กรุงเทพฯ</p>
+    <p>อัปโหลดไฟล์ Artwork ของคุณ แล้วดูภาพจำลองงานจริง — โบรชัวร์ ใบปลิว หนังสือ นามบัตร โปสเตอร์ — ก่อนตัดสินใจสั่งพิมพ์กับ <a href="index.html">โรงพิมพ์ธนะพัฒน์พริ้นติ้ง</a> ราษฎร์บูรณะ กรุงเทพฯ</p>
   </div>
 
   <!-- ============ CONTROLS ============ -->
@@ -527,7 +527,7 @@ const COATINGS = [
   {id:'spotuv', label:'Spot UV',         add:1.5},
 ];
 
-/* sizes: cm. d = depth (cm) for box/book. fold = panel count */
+/* sizes: cm. d = depth (cm) for book. fold = panel count */
 const PRODUCTS = {
   brochure:{label:'โบรชัวร์', ico:'📰', model:'fold', base:3.5, gsm:[105,128,157,210], gsmDef:128,
     sizes:[
@@ -549,13 +549,6 @@ const PRODUCTS = {
       {id:'b5', label:'B5 (17.6×25 ซม.)',        w:17.6,h:25,   d:1.5},
       {id:'a5', label:'A5 (14.8×21 ซม.)',        w:14.8,h:21,   d:1.4},
       {id:'pk', label:'Pocket (10.5×17.2 ซม.)',  w:10.5,h:17.2, d:1.2},
-    ]},
-  box:{label:'กล่อง', ico:'📦', model:'box', base:12, gsm:[260,300,350,400], gsmDef:350,
-    sizes:[
-      {id:'s',  label:'เล็ก (8×8×8 ซม.)',       w:8,  h:8,  d:8},
-      {id:'m',  label:'กลาง (15×10×6 ซม.)',     w:15, h:10, d:6},
-      {id:'l',  label:'ใหญ่ (20×15×10 ซม.)',    w:20, h:15, d:10},
-      {id:'xl', label:'พิเศษ (25×18×12 ซม.)',   w:25, h:18, d:12},
     ]},
   card:{label:'นามบัตร', ico:'💳', model:'card', base:2, gsm:[260,300,350,400], gsmDef:350,
     sizes:[
@@ -944,26 +937,7 @@ function buildBook(){
   return m;
 }
 
-/* ---- box ---- */
-function buildBox(){
-  const z=curSize(), s=fitScale(z.w,z.h,z.d);
-  const w=z.w*s, h=z.h*s, d=z.d*s;
-  const m=document.createElement('div'); m.className='model';
-  const tint=curPaper().tint;
-  /* front + back: artwork */
-  m.appendChild(mkFace(w,h,`translateZ(${d/2}px)`));
-  m.appendChild(mkFace(w,h,`rotateY(180deg) translateZ(${d/2}px)`,{dim:.25}));
-  /* sides */
-  m.appendChild(mkFace(d,h,`rotateY(90deg) translateZ(${w/2}px)`,{solid:tint,dim:.22}));
-  m.appendChild(mkFace(d,h,`rotateY(-90deg) translateZ(${w/2}px)`,{solid:tint,dim:.3}));
-  /* top: artwork (เหมือนฝากล่อง), bottom solid */
-  const top=mkFace(w,d,`rotateX(90deg) translateZ(${h/2}px)`,{dim:.06});
-  m.appendChild(top);
-  m.appendChild(mkFace(w,d,`rotateX(-90deg) translateZ(${h/2}px)`,{solid:tint,dim:.4}));
-  return m;
-}
-
-const BUILDERS = {sheet:buildSheet, card:buildCard, fold:buildFold, book:buildBook, box:buildBox};
+const BUILDERS = {sheet:buildSheet, card:buildCard, fold:buildFold, book:buildBook};
 
 function rebuildModel(){
   stage.innerHTML='';
